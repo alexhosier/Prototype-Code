@@ -16,10 +16,16 @@ public class AIController : MonoBehaviour
     public int aiHealth = 100;
     [Range(0, 15)] public float moveSpeed;
     public bool isMovingRight;
+    [Range(0, 30)] public float aiDeadLifetime;
 
     [Header("AI State Settings")]
     [Range(0, 20)] public float aiSightRange;
     public AIStates aiState;
+
+    [Header("AI Animation Settings")]
+    public Sprite IdleAnimation;
+    public Sprite WalkAnimation;
+    public Sprite DeadAnimation;
 
     [Header("Reference GameObjects")]
     public Transform rayPoint;
@@ -27,6 +33,7 @@ public class AIController : MonoBehaviour
 
     // Private variables
     private float playerDist;
+    private float curTime;
 
     // Start is called before the first frame update
     void Start()
@@ -49,6 +56,7 @@ public class AIController : MonoBehaviour
         // Do certain actions based on AI state
         switch(aiState)
         {
+
             case AIStates.Seaching:
                 // Move the AI right
                 transform.Translate(Vector2.right * Time.deltaTime * moveSpeed);
@@ -71,7 +79,7 @@ public class AIController : MonoBehaviour
                 }
 
                 // If the player is in range
-                if(playerDist < aiSightRange)
+                if (playerDist < aiSightRange)
                 {
                     aiState = AIStates.Attacking;
                 }
@@ -86,6 +94,9 @@ public class AIController : MonoBehaviour
                 }
 
                 // Move towards the player
+                groundInfo = Physics2D.Raycast(rayPoint.position, Vector2.down);
+
+                transform.Translate(Vector2.right * Time.deltaTime * moveSpeed);
 
                 // Attack player
                 break;
@@ -93,7 +104,16 @@ public class AIController : MonoBehaviour
             case AIStates.Dead:
                 // Set AI sprite to dead AI sprite
 
+                gameObject.GetComponent<SpriteRenderer>().sprite = DeadAnimation;
+
                 // Delete after time
+                curTime += Time.deltaTime;
+
+                if(curTime >= aiDeadLifetime)
+                {
+                    Destroy(gameObject);
+                }
+
                 break;
         }
     }
