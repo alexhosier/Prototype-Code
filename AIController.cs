@@ -12,11 +12,13 @@ public class AIController : MonoBehaviour
         Dead
     };
 
-    [Header("AI Settings")]
+    [Header("AI Movement/Health Settings")]
     public int aiHealth = 100;
     [Range(0, 15)] public float moveSpeed;
-    [Range(0, 15)] public float aiSightRange;
     public bool isMovingRight;
+
+    [Header("AI State Settings")]
+    [Range(0, 20)] public float aiSightRange;
     public AIStates aiState;
 
     [Header("Reference GameObjects")]
@@ -24,6 +26,7 @@ public class AIController : MonoBehaviour
     public Transform playerPos;
 
     // Private variables
+    private float playerDist;
 
     // Start is called before the first frame update
     void Start()
@@ -41,6 +44,8 @@ public class AIController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        playerDist = Vector2.Distance(transform.position, playerPos.position);
+
         // Do certain actions based on AI state
         switch(aiState)
         {
@@ -49,21 +54,24 @@ public class AIController : MonoBehaviour
                 transform.Translate(Vector2.right * Time.deltaTime * moveSpeed);
 
                 // Send a raycast into the ground
-                RaycastHit2D raycast = Physics2D.Raycast(rayPoint.position, Vector2.down);
+                RaycastHit2D groundInfo = Physics2D.Raycast(rayPoint.position, Vector2.down);
 
                 // If the AI does not detect ground
-                if(raycast.collider == null && isMovingRight == true)
+                if(groundInfo.collider == false)
                 {
-                    transform.eulerAngles = new Vector3(0, 180, 0);
-                    isMovingRight = false;
-                } else
-                {
-                    transform.eulerAngles = new Vector3(0, 0, 0);
-                    isMovingRight = true;
+                    if(isMovingRight == true)
+                    {
+                        transform.eulerAngles = new Vector3(0, -180, 0);
+                        isMovingRight = false;
+                    } else
+                    {
+                        transform.eulerAngles = new Vector3(0, 0, 0);
+                        isMovingRight = true;
+                    }
                 }
 
                 // If the player is in range
-                if(Vector3.Distance(transform.position, playerPos.position) < aiSightRange)
+                if(playerDist < aiSightRange)
                 {
                     aiState = AIStates.Attacking;
                 }
@@ -72,14 +80,20 @@ public class AIController : MonoBehaviour
 
             case AIStates.Attacking:
                 // Check if player has escaped from AI
-                if(Vector3.Distance(transform.position, playerPos.position) > aiSightRange)
+                if(playerDist > aiSightRange)
                 {
                     aiState = AIStates.Seaching;
                 }
+
+                // Move towards the player
+
+                // Attack player
                 break;
 
             case AIStates.Dead:
-                Debug.Log("AI Is dead");
+                // Set AI sprite to dead AI sprite
+
+                // Delete after time
                 break;
         }
     }

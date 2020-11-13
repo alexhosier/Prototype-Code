@@ -13,6 +13,8 @@ public class PlayerController : MonoBehaviour
     [Header("Player Settings")]
     public int health;
 
+    [Header("Animation Setttings")]
+
     [Header("Reference GameObjects")]
     public GameObject projectile;
 
@@ -73,7 +75,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // Fire projectile methiod
+    // Fire projectile method
     private void FireProjectile()
     {
         // If player press mouse 1
@@ -95,12 +97,17 @@ public class PlayerController : MonoBehaviour
 
             // If player touches enemy
             case "Enemy":
-                // Damage functionality here
+                health -= 10;
+                break;
+
+            // If player touches pickup
+            case "Pickup":
+                Debug.Log("Pickup touched!");
                 break;
 
             // If tag is unkown (ERROR)
             default:
-                Debug.LogError("Unkown GameObject tag");
+                Debug.Log("Unkown GameObject tag");
                 break;
         }
     }
