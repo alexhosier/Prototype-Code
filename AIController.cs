@@ -96,6 +96,8 @@ public class AIController : MonoBehaviour
                 // Move towards the player
                 groundInfo = Physics2D.Raycast(rayPoint.position, Vector2.down);
 
+                transform.LookAt(playerPos, Vector2.up);
+
                 transform.Translate(Vector2.right * Time.deltaTime * moveSpeed);
 
                 // Attack player
