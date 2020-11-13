@@ -13,6 +13,7 @@ public class AIController : MonoBehaviour
     };
 
     [Header("AI Settings")]
+    public int aiHealth = 100;
     [Range(0, 15)] public float moveSpeed;
     [Range(0, 15)] public float aiSightRange;
     public bool isMovingRight;
@@ -29,7 +30,12 @@ public class AIController : MonoBehaviour
     {
         // Set initial AI State
         aiState = AIStates.Seaching;
+
+        // Set true
         isMovingRight = true;
+
+        // Set initial health
+        aiHealth = 100;
     }
 
     // Update is called once per frame
@@ -61,12 +67,15 @@ public class AIController : MonoBehaviour
                 {
                     aiState = AIStates.Attacking;
                 }
-               
 
                 break;
 
             case AIStates.Attacking:
-                Debug.Log("AI Is attacking!");
+                // Check if player has escaped from AI
+                if(Vector3.Distance(transform.position, playerPos.position) > aiSightRange)
+                {
+                    aiState = AIStates.Seaching;
+                }
                 break;
 
             case AIStates.Dead:
