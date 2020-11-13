@@ -18,7 +18,7 @@ public class Projectile : MonoBehaviour
         // Find the RigidBody2D
         rb = gameObject.GetComponent<Rigidbody2D>();
 
-        // Add force to the RigidBody2D
+        // Add force
         rb.AddForce(Vector2.right * projectileForce);
     }
 

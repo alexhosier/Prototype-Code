@@ -11,12 +11,14 @@ public class PlayerController : MonoBehaviour
     public bool isGrounded;
 
     [Header("Player Settings")]
-    public int health;
+    [Range(0, 100)] public int health;
 
     [Header("Animation Setttings")]
+    public Sprite IdleAnim;
 
     [Header("Reference GameObjects")]
     public GameObject projectile;
+    public Transform projectileSpawn;
 
     // Private variables
     private Rigidbody2D rb;
@@ -81,7 +83,7 @@ public class PlayerController : MonoBehaviour
         // If player press mouse 1
         if(Input.GetButtonDown("Fire1"))
         {
-            Instantiate(projectile, Vector2.right, Quaternion.identity);
+            Instantiate(projectile, projectileSpawn.position, Quaternion.identity);
         }
     }
 
