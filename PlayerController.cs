@@ -14,7 +14,7 @@ public class PlayerController : MonoBehaviour
     [Range(0, 100)] public int health;
 
     [Header("Animation Setttings")]
-    public Sprite IdleAnim;
+    public Animator animator;
 
     [Header("Reference GameObjects")]
     public GameObject projectile;
@@ -57,6 +57,15 @@ public class PlayerController : MonoBehaviour
         // Get the axis from the input system
         float moveX = Input.GetAxis("Horizontal");
 
+        // Animate player based on movement
+        if (moveX > 0 || moveX < 0)
+        {
+            animator.SetBool("isWalking", true);
+        } else
+        {
+            animator.SetBool("isWalking", false);
+        }
+
         // Move the player based on the input system
         transform.Translate(Vector2.right * Time.deltaTime * moveSpeed * moveX);
     }
@@ -83,7 +92,11 @@ public class PlayerController : MonoBehaviour
         // If player press mouse 1
         if(Input.GetButtonDown("Fire1"))
         {
-            Instantiate(projectile, projectileSpawn.position, Quaternion.identity);
+            GameObject projectileToFire = projectile;
+
+            projectileToFire.GetComponent<Projectile>().projectileDirection = Projectile.FlightDirections.Right;
+
+            Instantiate(projectileToFire, projectileSpawn.position, Quaternion.identity);
         }
     }
 
@@ -105,6 +118,11 @@ public class PlayerController : MonoBehaviour
             // If player touches pickup
             case "Pickup":
                 Debug.Log("Pickup touched!");
+                break;
+
+            // If player collides with projectile
+            case "Projectile":
+                Destroy(collision.gameObject);
                 break;
 
             // If tag is unkown (ERROR)

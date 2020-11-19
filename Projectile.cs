@@ -4,9 +4,12 @@ using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
+    public enum FlightDirections { Left, Right };
+
     // Public variables
     public float projectileForce;
     public float projectileLifetime;
+    public FlightDirections projectileDirection;
 
     // Private variables
     private float curTime;
@@ -18,8 +21,15 @@ public class Projectile : MonoBehaviour
         // Find the RigidBody2D
         rb = gameObject.GetComponent<Rigidbody2D>();
 
-        // Add force
-        rb.AddForce(Vector2.right * projectileForce);
+        switch(projectileDirection)
+        {
+            case FlightDirections.Left:
+                rb.AddForce(Vector2.left * projectileForce);
+                break;
+            case FlightDirections.Right:
+                rb.AddForce(Vector2.right * projectileForce);
+                break;
+        }
     }
 
     void Update()

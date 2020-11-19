@@ -24,9 +24,7 @@ public class AIController : MonoBehaviour
     public AIStates aiState;
 
     [Header("AI Animation Settings")]
-    public Sprite IdleAnimation;
-    public Sprite WalkAnimation;
-    public Sprite DeadAnimation;
+    public Animator animator;
 
     [Header("Reference GameObjects")]
     public Transform rayPoint;
@@ -68,6 +66,9 @@ public class AIController : MonoBehaviour
             case AIStates.Seaching:
                 // Move the AI right
                 transform.Translate(Vector2.right * Time.deltaTime * moveSpeed);
+
+                // Set the bool in animator
+                animator.SetBool("isWalking", true);
 
                 // Send a raycast into the ground
                 RaycastHit2D groundInfo = Physics2D.Raycast(rayPoint.position, Vector2.down);
@@ -130,6 +131,8 @@ public class AIController : MonoBehaviour
 
             case AIStates.Dead:
                 // Set AI sprite to dead AI sprite
+                animator.SetBool("isWalking", false);
+                animator.Play("dead");
 
                 // Delete after time
                 curTime += Time.deltaTime;
@@ -150,10 +153,21 @@ public class AIController : MonoBehaviour
         {
             if(isMovingRight == false)
             {
-                Instantiate(aiProjectile, aiProjectileSpawnPoint.position, Quaternion.Euler(0, 180, 0));
+                // Create gameObject and set the travel direction
+                GameObject projectileToSpawn = aiProjectile;
+
+                projectileToSpawn.GetComponent<Projectile>().projectileDirection = Projectile.FlightDirections.Left;
+
+                Instantiate(projectileToSpawn, aiProjectileSpawnPoint.position, Quaternion.identity);
             } else
             {
-                Instantiate(aiProjectile, aiProjectileSpawnPoint.position, Quaternion.identity);
+                GameObject projectileToSpawn = aiProjectile;
+
+                projectileToSpawn.GetComponent<Projectile>().projectileDirection = Projectile.FlightDirections.Right;
+
+                Instantiate(projectileToSpawn, aiProjectileSpawnPoint.position, Quaternion.identity);
+
+
             }
 
             nextFireTime = Time.time + aiAttackDelay;
@@ -166,7 +180,10 @@ public class AIController : MonoBehaviour
         // If collision was with a projectile
         if(collision.gameObject.tag == "Projectile")
         {
-            // Destroy the RigidBody2D
+            // Set AI health
+            aiHealth = 0;
+
+            // Delete RigidBody2D
             Destroy(rb);
 
             // Set the enemies state to dead
@@ -174,6 +191,7 @@ public class AIController : MonoBehaviour
 
             // Destroy projectile
             Destroy(collision.gameObject);
+           
         }
     }
 }
