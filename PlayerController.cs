@@ -19,9 +19,12 @@ public class PlayerController : MonoBehaviour
     [Header("Reference GameObjects")]
     public GameObject projectile;
     public Transform projectileSpawn;
+    public GameManager gameManager;
+    public Transform door;
 
     // Private variables
     private Rigidbody2D rb;
+    private float distToDoor;
     private bool hasKey = false;
 
     // Start is called before the first frame update
@@ -40,6 +43,24 @@ public class PlayerController : MonoBehaviour
         Move();
         Jump();
         FireProjectile();
+
+        // If the door exists
+        if(door != null)
+        {
+            // Get the distance
+            distToDoor = Vector2.Distance(transform.position, door.position);
+        }
+
+        // Check if the player is close to the door
+        if(distToDoor < 5)
+        {
+            // Check if player presses interact and haskey
+            if(Input.GetKeyDown(KeyCode.E) && hasKey)
+            {
+                // Load the next scene
+                gameManager.LoadScene(1);
+            }
+        }
     }
 
     // Update the health values
@@ -147,6 +168,7 @@ public class PlayerController : MonoBehaviour
 
                         // Set the value to true
                         hasKey = true;
+                        gameManager.hasKey = true;
 
                         // Delete the key
                         Destroy(collision.gameObject);
@@ -172,14 +194,22 @@ public class PlayerController : MonoBehaviour
                 // Delete the projectile
                 Destroy(collision.gameObject);
 
-                // Remove health
-                health -= 10;
+                // Restart scene
+                gameManager.LoadScene(0);
+
+                break;
+
+            case "Door":
+
+                Debug.Log("The player is touching door");
 
                 break;
 
             // If tag is unkown (ERROR)
             default:
+
                 Debug.Log("Unkown GameObject tag");
+
                 break;
         }
     }
