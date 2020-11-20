@@ -34,6 +34,7 @@ public class AIController : MonoBehaviour
 
     // Private variables
     private Rigidbody2D rb;
+    private CircleCollider2D coll;
     private float playerDist;
     private float curTime;
     private float nextFireTime;
@@ -52,11 +53,15 @@ public class AIController : MonoBehaviour
 
         // Fetch RigidBody2D
         rb = gameObject.GetComponent<Rigidbody2D>();
+
+        // Fetch Collider
+        coll = gameObject.GetComponent<CircleCollider2D>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        // Get the distance to the player
         playerDist = Vector2.Distance(transform.position, playerPos.position);
 
         // Do certain actions based on AI state
@@ -106,6 +111,9 @@ public class AIController : MonoBehaviour
                     aiState = AIStates.Seaching;
                 }
 
+                // Set the animator
+                animator.SetBool("isWalking", false);
+
                 // Move towards the player
                 groundInfo = Physics2D.Raycast(rayPoint.position, Vector2.down);
 
@@ -118,9 +126,13 @@ public class AIController : MonoBehaviour
                 // Check if player is in front
                 RaycastHit2D playerInfo = Physics2D.Raycast(transform.position, Vector2.right, aiSightRange);
 
+                // If the AI does not detect the floor
                 if(playerInfo.collider == false)
                 {
+                    // Rotate the AI 180
                     transform.eulerAngles = new Vector3(0, transform.rotation.y + 180f, 0);
+
+                    // Rotate the spawn point
                     aiProjectileSpawnPoint.eulerAngles = new Vector3(0, transform.rotation.y + 180f, 0);
                 }
 
@@ -132,11 +144,13 @@ public class AIController : MonoBehaviour
             case AIStates.Dead:
                 // Set AI sprite to dead AI sprite
                 animator.SetBool("isWalking", false);
-                animator.Play("dead");
 
-                // Delete after time
+                animator.SetBool("isDead", true);
+
+                // Increment time passed
                 curTime += Time.deltaTime;
 
+                // Delete gameObject is life span is over
                 if(curTime > aiDeadLifetime)
                 {
                     Destroy(gameObject);
@@ -149,27 +163,33 @@ public class AIController : MonoBehaviour
     // Fire projectile at player
     private void FireProjectile()
     {
+        // Check that the AI is not trying to fire too early
         if(nextFireTime < Time.time)
         {
+            // Check if the AI is moving to the right
             if(isMovingRight == false)
             {
-                // Create gameObject and set the travel direction
+                // Initialise projectile
                 GameObject projectileToSpawn = aiProjectile;
 
+                // Set the direction of the force
                 projectileToSpawn.GetComponent<Projectile>().projectileDirection = Projectile.FlightDirections.Left;
 
+                // Spawn projectile
                 Instantiate(projectileToSpawn, aiProjectileSpawnPoint.position, Quaternion.identity);
             } else
             {
+                // Initialise projectile
                 GameObject projectileToSpawn = aiProjectile;
 
+                // Set the direction of the force
                 projectileToSpawn.GetComponent<Projectile>().projectileDirection = Projectile.FlightDirections.Right;
 
+                // Spawn projectile
                 Instantiate(projectileToSpawn, aiProjectileSpawnPoint.position, Quaternion.identity);
-
-
             }
 
+            // Set the next time to fire
             nextFireTime = Time.time + aiAttackDelay;
         }
     }
@@ -185,6 +205,9 @@ public class AIController : MonoBehaviour
 
             // Delete RigidBody2D
             Destroy(rb);
+
+            // Delete collider
+            Destroy(coll);
 
             // Set the enemies state to dead
             aiState = AIStates.Dead;

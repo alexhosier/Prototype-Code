@@ -22,6 +22,7 @@ public class PlayerController : MonoBehaviour
 
     // Private variables
     private Rigidbody2D rb;
+    private bool hasKey = false;
 
     // Start is called before the first frame update
     void Start()
@@ -107,22 +108,73 @@ public class PlayerController : MonoBehaviour
         {
             // If player touches floor
             case "Floor":
+
+                // Allow the player to jump again
                 isGrounded = true;
+
                 break;
 
             // If player touches enemy
             case "Enemy":
+
+                // Minus 10 health
                 health -= 10;
+
                 break;
 
             // If player touches pickup
             case "Pickup":
-                Debug.Log("Pickup touched!");
+
+                // Fetch the pickup controller
+                PickupController pickup = collision.gameObject.GetComponent<PickupController>();
+
+                // Switch between the types of pickups
+                switch(pickup.pickupType)
+                {
+                    // If player touches the health pickup
+                    case PickupController.PickupTypes.Health:
+
+                        // Increment the health based on the value in pickup controller
+                        health += pickup.healthToAdd;
+
+                        // Delete the health pickup
+                        Destroy(collision.gameObject);
+
+                        break;
+
+                    // If player touches the key
+                    case PickupController.PickupTypes.Key:
+
+                        // Set the value to true
+                        hasKey = true;
+
+                        // Delete the key
+                        Destroy(collision.gameObject);
+
+                        break;
+
+                    // If player touches a secret
+                    case PickupController.PickupTypes.Secret:
+
+                        // DEBUG
+                        Debug.Log("Player has pickuped a secret!");
+
+                        // Destroy the secret
+                        Destroy(collision.gameObject);
+
+                        break;
+                }
+
                 break;
 
             // If player collides with projectile
             case "Projectile":
+                // Delete the projectile
                 Destroy(collision.gameObject);
+
+                // Remove health
+                health -= 10;
+
                 break;
 
             // If tag is unkown (ERROR)
