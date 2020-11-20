@@ -99,6 +99,7 @@ public class AIController : MonoBehaviour
                 // If the player is in range
                 if (playerDist < aiSightRange)
                 {
+                    // Set AI state
                     aiState = AIStates.Attacking;
                 }
 
